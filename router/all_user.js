@@ -29,7 +29,7 @@ router.get('/deleteAddress',shopHandler.deleteAddress)
 router.get('/deleteCollection',shopHandler.deleteCollection)
 
 // 插入购物车
-router.get('/insertCart',shopHandler.insertCart)
+router.post('/insertCart',shopHandler.insertCart)
 
 // 删除购物车
 router.get('/deleteCart',shopHandler.deleteCart)
@@ -64,7 +64,7 @@ router.post('/PayOrer',shopHandler.PayOrer)
 // 查订单
 router.get('/SelectOrder',shopHandler.SelectOrder)
 
-// 待支付
-router.get('/ReadyPay',shopHandler.ReadyPay)
+// 删除订单
+router.get('/deleteOrder',shopHandler.deleteOrder)
 
 module.exports = router

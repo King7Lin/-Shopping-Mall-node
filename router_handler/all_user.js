@@ -1,4 +1,5 @@
 // 导入数据库操作模块
+const { result } = require('@hapi/joi/lib/base')
 const db = require('../db/index')
 moment = require('moment')
 
@@ -17,7 +18,8 @@ exports.selectShop = (req,res)=>{
       
         // 执行 SQL 语句成功，但是影响行数不等于 1
         // if(results.length !== 1) return res.cc('获取数据失败')
-
+        // console.log(results);
+        // console.log('-------------------------');
         result.shop.push(results)
         // console.log(results.date);
     })
@@ -65,6 +67,19 @@ exports.selectDetails = (req,res)=>{
         // res.send(results)
    })
 
+//    查收藏
+   const Csql = `select * from collection where user_id=? and  shop_id=?`
+   db.query(Csql,[req.query.user_id,req.query.shop_id],(err,results)=>{
+        if (err) return res.cc(err)
+        
+        if(results.length>0){
+            result.check = true
+        }else{
+            result.check = false
+        }
+        console.log(results.length)
+   })
+
 //    查询规格
    const specificationsSql = `select * from specifications where shop_id=?`
 
@@ -77,10 +92,12 @@ exports.selectDetails = (req,res)=>{
     })
 
     let specificationsarr = Array.from(Speresult)
-    // console.log(specificationsarr[0]);
+
+    
     // console.log(results);
     for(let i = 0 ; i<specificationsarr.length;i++){
-        result.specifications.push(specificationsarr[i])
+        result.specifications[i] = specificationsarr[i]
+
     }
     // console.log(result.specifications);
     res.send(result)
@@ -95,6 +112,7 @@ exports.selectAddress = (req,res)=>{
         if (err) return res.cc(err)
        
         res.send(results)
+        console.log('address')
     })
 }
 
@@ -130,18 +148,19 @@ exports.selectcart = (req,res)=>{
     const sql = `select * from cart where user_id = ?`
     let cart = []
     let time
-    db.query(sql,req.query.user_id,(err,results)=>{
+    db.query(sql,req.query.user_id,(err,Cresults)=>{
         if (err) return res.cc(err)
 
         const shopSql = `select * from shop where shop_id = ?`
-       for(let i=0;i<results.length;i++){
-           let num = results[i].num
+       for(let i=0;i<Cresults.length;i++){
+           let num = Cresults[i].num
         //    循环结束后执行setTimeout
            clearTimeout(time)
-            db.query(shopSql,results[i].shop_id,(err,results)=>{
+            db.query(shopSql,Cresults[i].shop_id,(err,results)=>{
                 if (err) return res.cc(err)
                 results[0].num=num
                 results[0].checked = false
+                results[0].desc = Cresults[i].shop_desc
                 cart.push(results)
             })
             //    循环结束后执行setTimeout
@@ -200,15 +219,18 @@ exports.deleteAddress = (req,res)=>{
 
 // 插入收藏
 exports.insertCollection = (req,res)=>{
-    const sql = `insert into collection values(?,?)`
-    // console.log(req.body);
+    const sql = `insert into collection(user_id,shop_id) values(?,?)`
+    console.log(req.query,req.query.user_id,req.query.shop_id);
     db.query(sql,[req.query.user_id,req.query.shop_id],(err,results)=>{
         if (err) return res.cc(err)
 
         // 执行 SQL 语句成功，但是影响行数不等于 1
         if (results.affectedRows !== 1) return res.cc('插入失败！')
 
-        res.send('ok')
+        res.send({
+            status:0,
+            message:'收藏成功'
+        })
 
     })
 }
@@ -221,7 +243,10 @@ exports.deleteCollection = (req,res)=>{
 
         // 执行 SQL 语句成功，但是影响行数不等于 1
         if (results.affectedRows !== 1) return res.cc('删除失败！')
-        res.send('ok')
+        res.send({
+            status:0,
+            message:'删除成功'
+        })
     })
 }
 
@@ -229,13 +254,15 @@ exports.deleteCollection = (req,res)=>{
 exports.insertCart = (req,res)=>{
 
     const Ssql = `select * from cart where user_id=? and shop_id=?`
-    db.query(Ssql,[req.query.user_id,req.query.shop_id],(err,result)=>{
+    db.query(Ssql,[req.body.user_id,req.body.shop_id],(err,result)=>{
         if (err) return res.cc(err)
-        console.log(result.length);
+        console.log(result);
+        console.log(req.body.desc);
+        let desc = "'" + req.body.desc + "'"
         if(result.length==0){
-            const sql = `insert into cart values(?,?,?)`
+            const sql = `insert into cart(user_id,shop_id,num,shop_desc) values(${req.body.user_id},${req.body.shop_id},${req.body.num == undefined?1:req.body.num},${desc})`
 
-            db.query(sql,[req.query.user_id,req.query.shop_id,1],(err,results)=>{
+            db.query(sql,(err,results)=>{
                 if (err) return res.cc(err)
         
                 // 执行 SQL 语句成功，但是影响行数不等于 1
@@ -244,8 +271,8 @@ exports.insertCart = (req,res)=>{
                 res.send('插入ok')
             })
         }else{
-            const Usql = `update cart set num = num+1 where user_id=? and shop_id=?`
-            db.query(Usql,[req.query.user_id,req.query.shop_id],(err,results)=>{
+            const Usql = `update cart set num = num+1,shop_desc = ${desc} where user_id=? and shop_id=?`
+            db.query(Usql,[req.body.user_id,req.body.shop_id],(err,results)=>{
                 if (err) return res.cc(err)
 
                 // 执行 SQL 语句成功，但是影响行数不等于 1
@@ -374,14 +401,13 @@ exports.selectMore = (req,res)=>{
 exports.insertOrder = (req,res)=>{
     let date = moment(new Date()).format('YYYY-MM-DD HH:mm:ss')
     let time
-    console.log(req.body);
-    const sql = `insert into user_order (user_id,shop_id,num,date,state) VALUES(?,?,?,?,?)`
+    const sql = `insert into user_order (user_id,shop_id,num,date,shop_desc,state) VALUES(?,?,?,?,?,?)`
     let arr = req.body.shop_id.split(',')
     console.log(arr.length);
     if(arr.length == 2){
         console.log(req.body);
         console.log(arr);
-        db.query(sql,[req.body.user_id,arr[0],arr[1],date,1],(err,results)=>{
+        db.query(sql,[req.body.user_id,arr[0],arr[1],date,req.body.desc,1],(err,results)=>{
             if (err) return res.cc(err)
             console.log(results);
             res.send({
@@ -395,7 +421,7 @@ exports.insertOrder = (req,res)=>{
         let id=[]
         for(let i = 1;i<arr.length-1;i+=2){
             clearTimeout(time)
-            db.query(sql,[req.body.user_id,arr[i],arr[i+1],date,1],(err,results)=>{
+            db.query(sql,[req.body.user_id,arr[i],arr[i+1],date,req.body.desc,1],(err,results)=>{
                 if (err) return res.cc(err)
                 
                 id.push(results.insertId)
@@ -446,45 +472,37 @@ exports.SelectOrder = (req,res)=>{
     db.query(sql,req.query.user_id,(err,results)=>{
         if (err) return res.cc(err)
         // console.log(results);
-        const result = new Map();
-        results.map(item => {
-            result.set(item.state, [...(result.get(item.state) || ''),item])
-        })
 
-        let Sresult = Array.from(result)
-        Sresult = JSON.stringify(Sresult)
-        Sresult = JSON.parse(Sresult)
-        // console.log(result);
-        // console.log(Sresult);
-        res.send(Sresult)
+        const ShopSql = `select * from user_order,shop where user_order.shop_id=shop.shop_id`
+        db.query(ShopSql,(err,ShopResults)=>{
+            if (err) return res.cc(err)
+            
+            const result = new Map();
+            ShopResults.map(item => {
+                result.set(item.state, [...(result.get(item.state) || ''),item])
+            })
+    
+            let Sresult = Array.from(result)
+            Sresult = JSON.stringify(Sresult)
+            Sresult = JSON.parse(Sresult)
+            // console.log(result);
+            // console.log(Sresult);
+            res.send(Sresult)
+        })
+       
     })
 }
 
-// 待支付
-exports.ReadyPay = (req,res)=>{
-    const sql = `select * from user_order where id = ?`
-    let arr = req.query.id.split(',')
-    let shop = []
-    let time
-    
-    for(let i = 0;i<arr.length;i++){
-        clearTimeout(time)
-        db.query(sql,arr[i],(err,results)=>{
-            if (err) return res.cc(err)
-            console.log(results[0].shop_id);
-            shop[i].id = results[0].id
-            shop[i].num = results[0].id
-            const ShopSql = `select * from shop where shop_id = ?`
-            db.query(ShopSql,results[0].shop_id,(err,Shopresults)=>{
-                if (err) return res.cc(err)
+// 删除订单
+exports.deleteOrder = (req,res)=>{
+    const sql  = `DELETE FROM user_order WHERE id=?`
 
-                shop[i].shop = Shopresults
-            })
-            // shop[i] = results
+    db.query(sql,req.query.id,(err,results)=>{
+        if (err) return res.cc(err)
+        res.send({
+            state:0
         })
-        time = setTimeout(()=>{
-            res.send(shop)
-       },100)
-    }
+    })
 }
 
+ 
