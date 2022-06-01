@@ -46,14 +46,16 @@ exports.regUser = (req,res)=>{
 // 登录的处理函数
 exports.login = (req,res)=>{
     const userinfo = req.body
-
+    console.log(req.body);
     const sql = `select * from user where username=?`
 
     db.query(sql,userinfo.username,(err,results)=>{
         if(err) return res.cc(err)
+        // console.log(results);
+        const user_id = results[0].user_id
         // 获取到的数据条数不等于1
         if(results.length !==1) return res.cc('登陆失败')
-
+        
         // 验证密码
         const compareResult = bcrypt.compareSync(userinfo.password,results[0].password)
         if(!compareResult) return res.cc('登陆失败')
@@ -62,11 +64,12 @@ exports.login = (req,res)=>{
 
         // 对用户的信息加密生成token
         const tokenStr = jwt.sign(user,config.jwtSecreKey,{expiresIn: config.expiresIn})
-        
+        // console.log(user_id);
         res.send({
             status:0,
             message:'登陆成功',
-            token:'Bearer ' + tokenStr
+            token:'Bearer ' + tokenStr,
+            user_id
         })
     })
 

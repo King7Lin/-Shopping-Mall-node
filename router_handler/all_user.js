@@ -15,10 +15,11 @@ exports.selectShop = (req,res)=>{
     const sql = `select * from shop limit ${req.query.star == undefined?0:req.query.star} , ${req.query.end == undefined?99999:req.query.end}`
     db.query(sql,(err,results)=>{
         if (err) return res.cc(err)
-      
-        // 执行 SQL 语句成功，但是影响行数不等于 1
-        // if(results.length !== 1) return res.cc('获取数据失败')
-        // console.log(results);
+        // let img = results[0].img.toString('base64')
+        // let num = req.query.end - req.query.star
+        // console.log(results.length);
+        // if(results.length == 0) return res.cc('没有更多商品')
+            
         // console.log('-------------------------');
         result.shop.push(results)
         // console.log(results.date);
@@ -27,14 +28,12 @@ exports.selectShop = (req,res)=>{
     const ActSql = `select * from shop where activity = 1 order by date desc limit 5`
     db.query(ActSql,(err,results)=>{
         if (err) return res.cc(err)
-
         result.activity.push(results)
     })
     // 广告
     const AdSql = `select * from advertisement order by date desc limit 5`
     db.query(AdSql,(err,results)=>{
         if (err) return res.cc(err)
-
         result.advertisement.push(results)
         res.send(result)
     })
@@ -112,7 +111,7 @@ exports.selectAddress = (req,res)=>{
         if (err) return res.cc(err)
        
         res.send(results)
-        console.log('address')
+        // console.log('address')
     })
 }
 
@@ -191,17 +190,38 @@ exports.insertAddress = (req,res)=>{
     })
 }
 
-// 修改地址
-exports.updateAddress = (req,res)=>{
-    const sql = `update user_address set number=?,address=?,name=? where id = ?`
-    db.query(sql,[req.body.number,req.body.address,req.body.name,req.body.id],(err,results)=>{
-
+// 修改地址默认
+exports.updateDefault = (req,res)=>{
+    // console.log(req.query)
+    const Usql = `update user_address set address_default=0 where user_id=?`
+    db.query(Usql,req.query.user_id,(err,result)=>{
         if (err) return res.cc(err)
 
-    // 执行 SQL 语句成功，但是影响行数不等于 1
-        if (results.affectedRows !== 1) return res.cc('修改失败！')
-        res.send('ok')
-    })
+        const sql = `update user_address set address_default=1 where id=?`
+    
+        db.query(sql,req.query.id,(err,results)=>{
+    
+            if (err) return res.cc(err)
+    
+        // 执行 SQL 语句成功，但是影响行数不等于 1
+            if (results.affectedRows !== 1) return res.cc('修改失败！')
+            res.send('ok')
+        })
+    })  
+}
+
+// 修改地址
+exports.updateAddress = (req,res)=>{
+        const sql = `update user_address set number=?,address=?,NAME=? where id=?`
+        console.log(req.body);
+        db.query(sql,[req.body.number,req.body.address,req.body.name,req.body.id],(err,results)=>{
+    
+            if (err) return res.cc(err)
+    
+        // 执行 SQL 语句成功，但是影响行数不等于 1
+            if (results.affectedRows !== 1) return res.cc('修改失败！')
+            res.send('ok')
+        })
 }
 
 // 删除地址
@@ -219,20 +239,33 @@ exports.deleteAddress = (req,res)=>{
 
 // 插入收藏
 exports.insertCollection = (req,res)=>{
-    const sql = `insert into collection(user_id,shop_id) values(?,?)`
-    console.log(req.query,req.query.user_id,req.query.shop_id);
-    db.query(sql,[req.query.user_id,req.query.shop_id],(err,results)=>{
+
+    const Ssql = `select * from collection where user_id=? and shop_id=?`
+    db.query(Ssql,[req.query.user_id,req.query.shop_id],(err,result)=>{
         if (err) return res.cc(err)
-
-        // 执行 SQL 语句成功，但是影响行数不等于 1
-        if (results.affectedRows !== 1) return res.cc('插入失败！')
-
-        res.send({
-            status:0,
-            message:'收藏成功'
-        })
-
-    })
+        console.log(result.length)
+        if(result.length>=1){
+            res.send({
+                status:2,
+                message:'收藏失败'
+            })
+        }else{
+            const sql = `insert into collection(user_id,shop_id) values(?,?)`
+            console.log(req.query,req.query.user_id,req.query.shop_id);
+            db.query(sql,[req.query.user_id,req.query.shop_id],(err,results)=>{
+                if (err) return res.cc(err)
+        
+                // 执行 SQL 语句成功，但是影响行数不等于 1
+                if (results.affectedRows !== 1) return res.cc('插入失败！')
+        
+                res.send({
+                    status:0,
+                    message:'收藏成功'
+                })
+        
+            })
+        }
+    })   
 }
 
 // 删除收藏
@@ -296,7 +329,10 @@ exports.deleteCart = (req,res)=>{
 
         // 执行 SQL 语句成功，但是影响行数不等于 1
         if (results.affectedRows !== 1) return res.cc('插入失败！')
-        res.send('ok')
+        res.send({
+            status:0,
+            message:'删除成功'
+        })
     })
 }
 
@@ -389,7 +425,7 @@ exports.selectMore = (req,res)=>{
         results.map(item => {
         result.set(item.type, [...(result.get(item.type) || ''), item])
         })
-        console.log(result);
+        // console.log(result);
         let more = Array.from(result)
         more = JSON.stringify(more)
         more = JSON.parse(more)

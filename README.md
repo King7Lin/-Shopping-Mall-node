@@ -74,15 +74,6 @@ http://127.0.0.1:3007
           name:?(名字)
       ##### }
 
-* #### 修改==地址==
-  * all/updateAddress
-      ##### data:{
-          number:?(电话号码)
-          address:?(详细地址)
-          name:?(名字)
-          id:?(用户地址唯一id)
-      #### }
-
 * #### 插入==订单==
   * all/insertOrder
       ##### data:{

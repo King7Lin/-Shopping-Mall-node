@@ -52,6 +52,9 @@ router.get('/selectMore',shopHandler.selectMore)
 // 插入地址
 router.post('/insertAddress',shopHandler.insertAddress)
 
+// 修改地址默认
+router.get('/updateDefault',shopHandler.updateDefault)
+
 // 修改地址
 router.post('/updateAddress',shopHandler.updateAddress)
 

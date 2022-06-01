@@ -16,27 +16,34 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `footprint`
+-- Table structure for table `user_order`
 --
 
-DROP TABLE IF EXISTS `footprint`;
+DROP TABLE IF EXISTS `user_order`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `footprint` (
+CREATE TABLE `user_order` (
   `user_id` int NOT NULL,
   `shop_id` int NOT NULL,
-  `date` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `date` datetime NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  `state` int NOT NULL,
+  `num` int NOT NULL,
+  `address_id` int DEFAULT NULL,
+  `shop_desc` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_id_UNIQUE` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `footprint`
+-- Dumping data for table `user_order`
 --
 
-LOCK TABLES `footprint` WRITE;
-/*!40000 ALTER TABLE `footprint` DISABLE KEYS */;
-INSERT INTO `footprint` VALUES (1,2,'2022-05-20 23:27:36'),(1,3,'2022-05-20 23:11:32'),(1,1,'2022-05-18 20:47:07'),(1,8,'2022-05-18 20:47:40'),(1,4,'2022-05-14 16:55:24');
-/*!40000 ALTER TABLE `footprint` ENABLE KEYS */;
+LOCK TABLES `user_order` WRITE;
+/*!40000 ALTER TABLE `user_order` DISABLE KEYS */;
+INSERT INTO `user_order` VALUES (1,3,'2022-05-26 17:08:04',102,1,2,NULL,'黑，43码，'),(1,3,'2022-05-26 17:08:40',103,1,2,NULL,'44码，紫，'),(1,3,'2022-05-26 17:09:36',104,1,2,NULL,'45码，蓝，'),(1,3,'2022-05-26 17:10:28',105,1,5,NULL,'45码，蓝，'),(1,3,'2022-05-26 17:11:45',106,1,1,NULL,'45码，蓝，'),(1,3,'2022-05-26 17:12:29',107,1,5,NULL,'45码，黄，');
+/*!40000 ALTER TABLE `user_order` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

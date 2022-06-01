@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.28, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.29, for Win64 (x86_64)
 --
 -- Host: localhost    Database: final
 -- ------------------------------------------------------
--- Server version	8.0.28
+-- Server version	8.0.29
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -25,8 +25,12 @@ DROP TABLE IF EXISTS `specifications`;
 CREATE TABLE `specifications` (
   `shop_id` int NOT NULL,
   `body` varchar(45) NOT NULL,
-  `choose` varchar(45) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `choose` varchar(45) NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `shop_id` (`shop_id`),
+  CONSTRAINT `specifications_ibfk_1` FOREIGN KEY (`shop_id`) REFERENCES `shop` (`shop_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -35,7 +39,7 @@ CREATE TABLE `specifications` (
 
 LOCK TABLES `specifications` WRITE;
 /*!40000 ALTER TABLE `specifications` DISABLE KEYS */;
-INSERT INTO `specifications` VALUES (3,'大小','30码'),(3,'大小','45码'),(3,'大小','44码'),(3,'大小','43码'),(3,'大小','42码'),(3,'大小','41码'),(3,'大小','20码'),(4,'大小','30码'),(4,'大小','45码'),(4,'大小','44码'),(4,'大小','42码'),(4,'大小','43码'),(4,'大小','41码'),(4,'大小','20码'),(5,'大小','30码'),(5,'大小','44码'),(5,'大小','43码'),(5,'大小','42码'),(5,'大小','41码'),(5,'大小','45码'),(5,'大小','20码'),(6,'大小','30码'),(6,'大小','45码'),(6,'大小','44码'),(6,'大小','43码'),(6,'大小','42码'),(6,'大小','20码'),(6,'大小','41码'),(7,'大小','30码'),(7,'大小','45码'),(7,'大小','44码'),(7,'大小','43码'),(7,'大小','42码'),(7,'大小','41码'),(7,'大小','20码'),(8,'大小','30码'),(8,'大小','45码'),(8,'大小','44码'),(8,'大小','43码'),(8,'大小','42码'),(8,'大小','41码'),(8,'大小','20码'),(9,'大小','30码'),(9,'大小','45码'),(9,'大小','44码'),(9,'大小','43码'),(9,'大小','41码'),(9,'大小','42码'),(9,'大小','20码');
+INSERT INTO `specifications` VALUES (3,'大小','30码',1),(3,'大小','45码',2),(3,'大小','44码',3),(3,'大小','43码',4),(3,'大小','42码',5),(3,'大小','41码',6),(3,'大小','20码',7),(3,'颜色','红',8),(3,'颜色','黄',9),(3,'颜色','蓝',10),(3,'颜色','绿',11),(3,'颜色','紫',12),(3,'颜色','黑',13),(3,'颜色','白',14),(5,'大小','30码',15),(5,'大小','44码',16),(5,'大小','43码',17),(5,'大小','42码',18),(5,'大小','41码',19),(5,'大小','45码',20),(5,'大小','20码',21),(6,'大小','30码',22),(6,'大小','45码',23),(6,'大小','44码',24),(6,'大小','43码',25),(6,'大小','42码',26),(6,'大小','20码',27),(6,'大小','41码',28),(7,'大小','30码',29),(7,'大小','45码',30),(7,'大小','44码',31),(7,'大小','43码',32),(7,'大小','42码',33),(7,'大小','41码',34),(7,'大小','20码',35),(8,'大小','30码',36),(8,'大小','45码',37),(8,'大小','44码',38),(8,'大小','43码',39),(8,'大小','42码',40),(8,'大小','41码',41),(8,'大小','20码',42),(9,'大小','30码',43),(9,'大小','45码',44),(9,'大小','44码',45),(9,'大小','43码',46),(9,'大小','41码',47),(9,'大小','42码',48),(9,'大小','20码',49);
 /*!40000 ALTER TABLE `specifications` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -48,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-05-02 23:58:44
+-- Dump completed on 2022-05-27 14:36:18
